@@ -18,6 +18,16 @@ The four-bar **Afterglow** demo contains original backing audio for testing Cycl
 
 The default output is an unsigned local package with ad hoc-signed code. To build a distribution-signed package, set `LOGIC_BRIDGE_APPLICATION_SIGN_IDENTITY` and `LOGIC_BRIDGE_INSTALLER_SIGN_IDENTITY` to the matching Developer ID identities. Submit that signed package to Apple's notary service and staple it before distributing it to users. [Apple packaging guidance](https://developer.apple.com/documentation/xcode/packaging-mac-software-for-distribution)
 
+## Support Logic Bridge
+
+Distributors can provide their public Stripe Payment Link at build time with `LOGIC_BRIDGE_DONATION_URL`. The installer accepts an HTTPS Payment Link on `buy.stripe.com`. Configure a one-time, optional tip in Stripe and choose your own amount limits there. A build without a Payment Link keeps support prompts disabled.
+
+```sh
+LOGIC_BRIDGE_DONATION_URL='https://buy.stripe.com/your-payment-link' ./script/package_installer.sh
+```
+
+The optional support sheet appears once after five cumulative minutes with the plug-in editor open, when a generation, authentication, or file dialog is idle. It has an immediate dismissal. Selecting **Leave a tip** displays Stripe Checkout in the plug-in using a nonpersistent WebKit view. Stripe handles payment details directly through the Payment Link.
+
 ## Build and register
 
 Requirements are macOS 14 or later, Xcode and XcodeGen. Run the Codex **Run** action or:

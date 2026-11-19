@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
+  <key>LogicBridgeDonationURL</key><string>$(LOGIC_BRIDGE_DONATION_URL)</string>
   <key>CFBundleIdentifier</key><string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
   <key>CFBundleExecutable</key><string>$(EXECUTABLE_NAME)</string>
   <key>CFBundleName</key><string>Stem Generator</string>
@@ -20,7 +21,7 @@
         <key>type</key><string>aufx</string>
         <key>tags</key><array><string>Effects</string></array>
         <key>sandboxSafe</key><true/>
-        <key>version</key><integer>512</integer>
+        <key>version</key><integer>513</integer>
       </dict></array>
     </dict>
   </dict>

@@ -14,6 +14,7 @@ struct StemPanel: View {
     @State private var showConnection = false
     @State private var pickingReference = false
     @State private var advanced = false
+    @State private var supportSheetOpen = false
     @State private var exportTake: StemSession.Take?
     @State private var exportingTake = false
     @State private var draftEndpoint = ""
@@ -38,6 +39,12 @@ struct StemPanel: View {
         .background(Color(red: 0.07, green: 0.09, blue: 0.10))
         .preferredColorScheme(.dark)
         .tint(accent)
+        .task { await offerSupportOnce() }
+        .sheet(isPresented: $supportSheetOpen) {
+            if let url = SupportDestination.paymentURL {
+                SupportSheet(paymentURL: url)
+            }
+        }
         .fileImporter(isPresented: $pickingReference, allowedContentTypes: [.wav]) { result in
             switch result {
             case .success(let url): session.referenceURL = url
@@ -271,6 +278,31 @@ struct StemPanel: View {
         .background(card, in: RoundedRectangle(cornerRadius: 12))
     }
 
+    @MainActor
+    private func offerSupportOnce() async {
+        guard SupportDestination.paymentURL != nil else { return }
+        let preferences = UserDefaults.standard
+        let clock = ContinuousClock()
+        let interval = Duration.seconds(1)
+        let threshold = Double(SupportDestination.automaticPromptDelay.components.seconds)
+        while !preferences.bool(forKey: SupportDestination.hasShownKey) {
+            let started = clock.now
+            do { try await Task.sleep(for: interval) } catch { return }
+            guard session.authenticationWindow?()?.isVisible == true else { continue }
+            let elapsed = clock.now - started
+            // Sleep or scheduling delays do not count as active editor time.
+            let seconds = min(1, Double(elapsed.components.seconds)
+                + Double(elapsed.components.attoseconds) / 1e18)
+            let total = preferences.double(forKey: SupportDestination.visibleSecondsKey) + seconds
+            preferences.set(total, forKey: SupportDestination.visibleSecondsKey)
+            guard total >= threshold, !session.generating, !showConnection, browserTask == nil,
+                  !pickingReference, !exportingTake, !supportSheetOpen,
+                  !preferences.bool(forKey: SupportDestination.hasShownKey) else { continue }
+            preferences.set(true, forKey: SupportDestination.hasShownKey)
+            supportSheetOpen = true
+        }
+    }
+
     private var endpointURL: URL? { StemService.endpointURL(endpoint) }
 
     private var savedBrowserSettings: BrowserAuthSettings? {
@@ -416,6 +448,15 @@ struct StemPanel: View {
                 Button(draftBrowserAuth ? "Sign In" : "Use Service", action: connect)
                     .disabled(StemService.endpointURL(draftEndpoint) == nil
                               || (draftBrowserAuth && !draftBrowserSettings.isComplete))
+            }
+            if SupportDestination.paymentURL != nil {
+                Divider()
+                Button("Support Logic Bridge") {
+                    UserDefaults.standard.set(true, forKey: SupportDestination.hasShownKey)
+                    showConnection = false
+                    supportSheetOpen = true
+                }
+                .buttonStyle(.link)
             }
         }
         .padding(16)

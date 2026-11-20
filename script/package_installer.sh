@@ -20,10 +20,14 @@ fi
 
 xcodegen generate
 mkdir -p "$derived" "$root/dist"
+donation_setting=()
+if [[ ${LOGIC_BRIDGE_DONATION_URL+x} ]]; then
+    donation_setting=("LOGIC_BRIDGE_DONATION_URL=$LOGIC_BRIDGE_DONATION_URL")
+fi
 if ! xcodebuild -project LogicBridge.xcodeproj -scheme LogicBridge -configuration Release \
     -derivedDataPath "$derived" -destination 'generic/platform=macOS' \
     ARCHS='arm64 x86_64' ONLY_ACTIVE_ARCH=NO CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO \
-    "LOGIC_BRIDGE_DONATION_URL=${LOGIC_BRIDGE_DONATION_URL:-}" build > "$derived/build.log" 2>&1; then
+    ${donation_setting[@]+"${donation_setting[@]}"} build > "$derived/build.log" 2>&1; then
     tail -100 "$derived/build.log" >&2
     exit 1
 fi

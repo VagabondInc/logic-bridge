@@ -20,7 +20,7 @@ The default output is an unsigned local package with ad hoc-signed code. To buil
 
 ## Support Logic Bridge
 
-Distributors can provide their public Stripe Payment Link at build time with `LOGIC_BRIDGE_DONATION_URL`. The installer accepts an HTTPS Payment Link on `buy.stripe.com`. Configure a one-time, optional tip in Stripe and choose your own amount limits there. A build without a Payment Link keeps support prompts disabled.
+The official preview includes Logic Bridge’s [Stripe tip jar](https://buy.stripe.com/4gM28jeOoeAweYWfyBgbm0a). Distributors can override the public Payment Link at build time with `LOGIC_BRIDGE_DONATION_URL`. Use an HTTPS Payment Link on `buy.stripe.com`, or set the variable to an empty value to disable the prompt for your build.
 
 ```sh
 LOGIC_BRIDGE_DONATION_URL='https://buy.stripe.com/your-payment-link' ./script/package_installer.sh
